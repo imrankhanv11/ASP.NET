@@ -47,10 +47,27 @@ namespace Web_API_Practice.Controllers
 
                 return NoContent();
             }
+            catch
+            {
+                return StatusCode(500, "An error occurred while deleting the product");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AllProductsDTO>> GetProductWithID(int id)
+        {
+            try
+            {
+                var product = await _service.GetProductWithIDService(id);
+
+                if (product == null)
+                    return NotFound();
+
+                return Ok(product);
+            }
             catch (Exception ex)
             {
-                // Log the exception
-                return StatusCode(500, "An error occurred while deleting the product");
+                return StatusCode(500, "An error occurred while retrieving the product");
             }
         }
     }
