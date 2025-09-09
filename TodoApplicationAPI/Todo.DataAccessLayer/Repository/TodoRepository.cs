@@ -29,17 +29,13 @@ namespace Todo.DataAccessLayer.Repository
             return todo;
         }
 
-        public async Task<IEnumerable<TodoGetAll>> TodoGetAllRepo()
+        public async Task<IEnumerable<TodoModel>> TodoGetAllRepo()
         {
-            var value = await _dbContext.Todos.Select(s => new TodoGetAll
-            {
-                Name = s.User.Name,
-                Category = s.Category.Name,
-                Title = s.Title,
-                Description = s.Description,
-                Status = s.Status.Name,
-                CreatedDate = DateOnly.FromDateTime((DateTime)s.CreatedAt)
-            }).ToListAsync();
+            var value = await _dbContext.Todos
+                .Include(s => s.Category)
+                .Include(s => s.User)
+                .Include(m => m.Status)
+                .ToListAsync();
 
             return value;
         }

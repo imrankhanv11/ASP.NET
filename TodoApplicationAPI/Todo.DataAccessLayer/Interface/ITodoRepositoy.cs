@@ -12,7 +12,7 @@ namespace Todo.DataAccessLayer.Interface
     {
         Task<TodoModel> TodoAddRepo(TodoModel todo);
 
-        Task<IEnumerable<TodoGetAll>> TodoGetAllRepo();
+        Task<IEnumerable<TodoModel>> TodoGetAllRepo();
 
         Task<bool> DeleteTodoRepo(int id);
 
