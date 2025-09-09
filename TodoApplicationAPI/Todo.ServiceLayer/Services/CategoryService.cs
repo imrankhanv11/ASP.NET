@@ -8,6 +8,7 @@ using Todo.DataAccessLayer.Interface;
 using Todo.ModelLayer.DTO.Request;
 using Todo.ModelLayer.DTO.Response;
 using Todo.ServiceLayer.Interface;
+using Todo.ModelLayer.ValidationResponse;
 
 namespace Todo.ServiceLayer.Services
 {
@@ -20,14 +21,28 @@ namespace Todo.ServiceLayer.Services
             _repository = repository;
         }
 
-        public async Task<AddCatResponceDTO> AddCatService(AddCatDTO dto)
+        public async Task<ResultSet<AddCatResponceDTO>> AddCatService(AddCatDTO dto)
         {
+            if (dto.name.Length >= 10)
+                return new ResultSet<AddCatResponceDTO>
+                {
+                    Success = false,
+                    ErrorMessage = "Name Can't More then 9 Char",
+                    Field = "Name"
+                };
+
             var cat = new Category
             {
                 Name = dto.name
             };
 
-            return await _repository.AddCatRepo(cat);
+            var value = await _repository.AddCatRepo(cat);
+
+            return new ResultSet<AddCatResponceDTO>
+            {
+                Success = true,
+                Data = value
+            };
         }
     }
 }

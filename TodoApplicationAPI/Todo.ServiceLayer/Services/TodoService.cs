@@ -7,23 +7,52 @@ using Todo.DataAccessLayer;
 using Todo.DataAccessLayer.Data;
 using Todo.DataAccessLayer.Interface;
 using Todo.DataAccessLayer.Repository;
+using Todo.ModelLayer;
 using Todo.ModelLayer.DTO.Request;
 using Todo.ModelLayer.DTO.Response;
+using Todo.ModelLayer.ValidationResponse;
 using Todo.ServiceLayer.Interface;
-using Todo.ModelLayer;
 
 namespace Todo.ServiceLayer.Services
 {
     public class TodoService : ITodoService
     {
         private readonly ITodoRepositoy _respository;
+        private readonly IValidationsTodo _validation;
 
-        public TodoService(ITodoRepositoy repositoy)
+        public TodoService(ITodoRepositoy repositoy, IValidationsTodo validations)
         {
             _respository = repositoy;
+            _validation = validations;
         }
-        public async Task<TodoAddResponseDTO> TodoAddservice(TodoAddDTO dto)
+
+
+        public async Task<ResultSet<TodoAddResponseDTO>> TodoAddservice(TodoAddDTO dto)
         {
+
+            var outputReturn = new ResultSet<TodoAddResponseDTO>();
+
+            if (!await _validation.UserIDValidation(dto.UserId))
+            {
+                outputReturn.ErrorMessage = "User ID not found";
+                outputReturn.Field = "UserID";
+                return outputReturn;
+            }
+
+            if(!await _validation.CategoryIDValidation(dto.CategoryId))
+            {
+                outputReturn.ErrorMessage = "Cat ID not found";
+                outputReturn.Field = "Cat ID";
+                return outputReturn;
+            }
+
+            if(!await _validation.ShipperIDValidation(dto.StatusId)) 
+            {
+                outputReturn.ErrorMessage = "Status ID not found";
+                outputReturn.Field = "status";
+                return outputReturn;
+            }
+
             var newTodo = new TodoModel
             {
                 UserId = dto.UserId,
@@ -35,7 +64,7 @@ namespace Todo.ServiceLayer.Services
 
             var result = await _respository.TodoAddRepo(newTodo);
 
-            return new TodoAddResponseDTO
+            var value = new TodoAddResponseDTO
             {
                 Id = result.Id,
                 UserId = result.UserId,
@@ -44,27 +73,55 @@ namespace Todo.ServiceLayer.Services
                 Title = result.Title,
                 Description= result.Description
             };
+
+            outputReturn.Data = value;
+            outputReturn.Success = true;
+
+            return outputReturn;
+            
         }
 
         public async Task<IEnumerable<TodoGetAll>> GetAllService()
         {
             var todo = await _respository.TodoGetAllRepo();
-            //return await _respository.TodoGetAllRepo();
-            return todo;
+
+            var todoresult = todo.Select(s => new TodoGetAll
+            {
+                Name = s.User.Name,
+                Category = s.Category.Name,
+                Status = s.Status.Name,
+                Title = s.Title,
+                Description = s.Description,
+                CreatedDate = DateOnly.FromDateTime((DateTime)s.CreatedAt)
+            });
+        
+            return todoresult;
         }
 
         public async Task<bool> DeleteTodoService(int id)
         {
+            if(!await _validation.TodoIdValidation(id))
+            {
+                throw new KeyNotFoundException("hii");
+            }
             return await _respository.DeleteTodoRepo(id);
         }
 
         public async Task<bool> UpdateTodoService(int id, TodoUpdateDTO dto)
         {
+            if (!await _validation.TodoIdValidation(id))
+            {
+                return false;
+            }
             return await _respository.UpdateTodoRepo(id, dto);
         }
 
         public async Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto)
         {
+            if (!await _validation.TodoIdValidation(id))
+            {
+                return false;
+            }
             return await _respository.PatchTodoRepo(id, dto);
         }
 

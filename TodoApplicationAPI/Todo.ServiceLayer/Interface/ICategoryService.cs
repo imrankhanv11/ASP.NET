@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Todo.ModelLayer.DTO.Request;
 using Todo.ModelLayer.DTO.Response;
+using Todo.ModelLayer.ValidationResponse;
 
 namespace Todo.ServiceLayer.Interface
 {
     public interface ICategoryService
     {
-        Task<AddCatResponceDTO> AddCatService(AddCatDTO dto);
+        Task<ResultSet<AddCatResponceDTO>> AddCatService(AddCatDTO dto);
     }
 }
