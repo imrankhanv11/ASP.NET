@@ -104,5 +104,20 @@ namespace Todo.DataAccessLayer.Repository
 
             return value;
         }
+
+        public async Task<IEnumerable<TodoModel>> SearchRepo(int? status, int? cat)
+        {
+            var value = _dbContext.Todos.AsQueryable();
+
+            value = value.Where(s => !status.HasValue || s.StatusId == status)
+                .Where(s => !cat.HasValue || s.CategoryId == cat)
+                .Include(s => s.Status)
+                .Include(cat => cat.Category)
+                .Include(s=> s.User);
+
+            var task = await value.ToListAsync();
+
+            return task;
+        }
     }
 }

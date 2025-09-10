@@ -21,5 +21,7 @@ namespace Todo.DataAccessLayer.Interface
         Task<bool> PatchTodoRepo(int id, UpdateTodoStatusIdDTO dto);
 
         Task<GetOneDTO> GetOneRepo(int id);
+
+        Task<IEnumerable<TodoModel>> SearchRepo(int? status, int? cat);
     }
 }
