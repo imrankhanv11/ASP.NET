@@ -13,5 +13,7 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
+    public string Roll {  get; set; } = null!;
+
     public virtual ICollection<TodoModel> Todos { get; set; } = new List<TodoModel>();
 }
