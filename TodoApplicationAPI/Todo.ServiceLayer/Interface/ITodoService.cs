@@ -22,5 +22,7 @@ namespace Todo.ServiceLayer.Interface
         Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto);
 
         Task<GetOneDTO> GetOneService(int id);
+
+        Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat);
     }
 }

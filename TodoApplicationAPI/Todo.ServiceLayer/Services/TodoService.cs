@@ -131,5 +131,23 @@ namespace Todo.ServiceLayer.Services
 
             return value;
         }
+
+        public async Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat)
+        {
+            var todo = await _respository.SearchRepo(status, cat);
+
+            var todoresult = todo.Select(s => new TodoGetAll
+            {
+                Name = s.User.Name,
+                Category = s.Category.Name,
+                Status = s.Status.Name,
+                Title = s.Title,
+                Description = s.Description,
+                CreatedDate = DateOnly.FromDateTime((DateTime)s.CreatedAt)
+            });
+
+            return todoresult;
+
+        }
     }
 }
