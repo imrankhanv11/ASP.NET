@@ -32,7 +32,7 @@ namespace Todo.Controllers
 
             if (value != null)
             {
-                var token = await _service.GenerateJwtToken(value.Email, value.Roll);
+                var token = await _service.GenerateJwtToken(value.Email, value.Roll, value.Id);
                 
                 return Ok(token);
 

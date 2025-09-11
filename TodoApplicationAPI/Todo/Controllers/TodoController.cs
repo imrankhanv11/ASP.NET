@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
+using System.Security.Claims;
 using Todo.ModelLayer.DTO.Request;
 using Todo.ModelLayer.DTO.Response;
 using Todo.ServiceLayer.Interface;
@@ -12,6 +13,7 @@ namespace Todo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class TodoController : ControllerBase
     {
         private readonly ITodoService _service;
@@ -29,9 +31,13 @@ namespace Todo.Controllers
             {
                 return BadRequest(new { Message = "Todo Not be empty"});
             }
+
+            var UserID = User.Claims.FirstOrDefault(s=> s.Type == ClaimTypes.NameIdentifier);
+
+            var id = int.Parse(UserID.Value);
             try
             {
-                var result = await _service.TodoAddservice(tododto);
+                var result = await _service.TodoAddservice(tododto, id);
 
                 if (!result.Success)
                 {
@@ -55,9 +61,18 @@ namespace Todo.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<TodoGetAll>>> GetAll()
         {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Invalid Token or User not found" });
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+
             try
             {
-                var result = await _service.GetAllService();
+                var result = await _service.GetAllService(userId);
 
                 return Ok(result);
             }
@@ -72,11 +87,20 @@ namespace Todo.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteTodo(int id)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+                var UserID = User.Claims.FirstOrDefault(s=> s.Type == ClaimTypes.NameIdentifier);
+
+            var Uid = int.Parse(UserID.Value);
+
             try
             {
                 if (id == 0) return BadRequest();
 
-                var result = await _service.DeleteTodoService(id);
+                var result = await _service.DeleteTodoService(id, Uid);
 
                 if (!result) return NotFound(new
                 {
@@ -90,20 +114,28 @@ namespace Todo.Controllers
             }
             catch(Exception ex)
             {
-                //return StatusCode(500, $"Server Error {ex.Message}");
                 throw;
             }
         }
-
 
         [HttpPut("UpdateByID/{id:int}")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateTodo(int id, [FromBody] TodoUpdateDTO dto)
         {
-            if(id == 0) return BadRequest();
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+                if (id == 0) return BadRequest();
+
+            var UserID = User.Claims.FirstOrDefault(s=> s.Type == ClaimTypes.NameIdentifier);
+
+            var Uid = int.Parse(UserID.Value);
+
             try
             {
-                var result = await _service.UpdateTodoService(id, dto);
+                var result = await _service.UpdateTodoService(id, dto, Uid);
 
                 if (!result) return NotFound();
 
@@ -115,16 +147,24 @@ namespace Todo.Controllers
             }
         }
 
-
         [HttpPatch("UpdateByIDPath/{id:int}")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateTodoPatch(int id, [FromBody] UpdateTodoStatusIdDTO dto)
         {
-            if( id == 0) return BadRequest();
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+            if ( id == 0) return BadRequest();
+
+            var UserID = User.Claims.FirstOrDefault(s=> s.Type == ClaimTypes.NameIdentifier);
+
+            var UId = int.Parse(UserID.Value);
 
             try
             {
-                var value = await _service.PatchTodoService(id, dto);
+                var value = await _service.PatchTodoService(id, dto, UId);
 
                 if (!value) return NotFound();
 
@@ -144,11 +184,20 @@ namespace Todo.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<GetOneDTO>> GetOne(int id = 3)
         {
-            if(id == 0) return BadRequest();
-            
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+            if (id == 0) return BadRequest();
+
+            var UserID = User.Claims.FirstOrDefault(s => s.Type == ClaimTypes.NameIdentifier);
+
+            var UId = int.Parse(UserID.Value);
+
             try
             {
-                var result = await _service.GetOneService(id);
+                var result = await _service.GetOneService(id, UId);
 
                 if(result == null) return NotFound();   
 
@@ -165,7 +214,16 @@ namespace Todo.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<TodoGetAll>>> Search([FromQuery] int? status, [FromQuery] int? cat)
         {
-            var value = await _service.SearchService(status, cat);
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+            var UserID = User.Claims.FirstOrDefault(s => s.Type == ClaimTypes.NameIdentifier);
+
+            var UId = int.Parse(UserID.Value);
+
+            var value = await _service.SearchService(status, cat, UId);
 
             if (value == null) return NotFound();
 
