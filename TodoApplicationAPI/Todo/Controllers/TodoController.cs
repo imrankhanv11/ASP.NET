@@ -23,8 +23,13 @@ namespace Todo.Controllers
             _service = service;
         }
 
-        [HttpPost("AddTodo")]
+        [HttpPost]
+        [Route("AddTodo")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateTodo([FromBody] TodoAddDTO tododto)
         {
             if (tododto == null)
@@ -59,6 +64,10 @@ namespace Todo.Controllers
         [HttpGet]
         [Route("GetAll")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<TodoGetAll>>> GetAll()
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
@@ -85,6 +94,10 @@ namespace Todo.Controllers
 
         [HttpDelete("DeleteTodobyid/{id:int}")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteTodo(int id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -120,6 +133,10 @@ namespace Todo.Controllers
 
         [HttpPut("UpdateByID/{id:int}")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateTodo(int id, [FromBody] TodoUpdateDTO dto)
         {
             if (!User.Identity.IsAuthenticated)
@@ -149,6 +166,9 @@ namespace Todo.Controllers
 
         [HttpPatch("UpdateByIDPath/{id:int}")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateTodoPatch(int id, [FromBody] UpdateTodoStatusIdDTO dto)
         {
             if (!User.Identity.IsAuthenticated)
@@ -212,6 +232,8 @@ namespace Todo.Controllers
         [HttpGet]
         [Route("Search")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<TodoGetAll>>> Search([FromQuery] int? status, [FromQuery] int? cat)
         {
             if (!User.Identity.IsAuthenticated)

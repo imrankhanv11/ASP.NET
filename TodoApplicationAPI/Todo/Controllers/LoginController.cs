@@ -26,6 +26,8 @@ namespace Todo.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
             var value = await _service.CheckPassWordUserService(loginDto);
@@ -42,11 +44,18 @@ namespace Todo.Controllers
         }
 
         [HttpPost("refresh-token")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RefreshLogin([FromBody] string token)
         {
             var tokenNew = await _service.GenerateNewToken(token);
 
-            return Ok(tokenNew);
+            if (tokenNew != null)
+            {
+                return Ok(tokenNew);
+            }
+
+            return Unauthorized(new { Message = "You need to login"});
         }
     }
 }
