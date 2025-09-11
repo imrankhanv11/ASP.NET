@@ -10,7 +10,7 @@ namespace Todo.ServiceLayer.Interface
 {
     public interface ILoginService
     {
-        Task<LoginResponseDTO> GenerateJwtToken(string username, string role);
+        Task<LoginResponseDTO> GenerateJwtToken(string username, string role, int id);
 
         Task<LoginAuthenticationDTO> CheckPassWordUserService(LoginDTO dto);
 

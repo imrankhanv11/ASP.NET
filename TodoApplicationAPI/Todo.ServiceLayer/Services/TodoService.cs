@@ -27,12 +27,12 @@ namespace Todo.ServiceLayer.Services
         }
 
 
-        public async Task<ResultSet<TodoAddResponseDTO>> TodoAddservice(TodoAddDTO dto)
+        public async Task<ResultSet<TodoAddResponseDTO>> TodoAddservice(TodoAddDTO dto, int id)
         {
 
             var outputReturn = new ResultSet<TodoAddResponseDTO>();
 
-            if (!await _validation.UserIDValidation(dto.UserId))
+            if (!await _validation.UserIDValidation(id))
             {
                 outputReturn.ErrorMessage = "User ID not found";
                 outputReturn.Field = "UserID";
@@ -55,7 +55,7 @@ namespace Todo.ServiceLayer.Services
 
             var newTodo = new TodoModel
             {
-                UserId = dto.UserId,
+                UserId = id,
                 StatusId = dto.StatusId,
                 CategoryId = dto.CategoryId,
                 Title = dto.Title,
@@ -81,9 +81,9 @@ namespace Todo.ServiceLayer.Services
             
         }
 
-        public async Task<IEnumerable<TodoGetAll>> GetAllService()
+        public async Task<IEnumerable<TodoGetAll>> GetAllService(int userId)
         {
-            var todo = await _respository.TodoGetAllRepo();
+            var todo = await _respository.TodoGetAllRepo(userId);
 
             var todoresult = todo.Select(s => new TodoGetAll
             {
@@ -98,43 +98,44 @@ namespace Todo.ServiceLayer.Services
             return todoresult;
         }
 
-        public async Task<bool> DeleteTodoService(int id)
+        public async Task<bool> DeleteTodoService(int id, int Uid)
         {
-            if(!await _validation.TodoIdValidation(id))
+            if(!await _validation.TodoIdValidation(id, Uid))
             {
-                throw new KeyNotFoundException("hii");
+                throw new KeyNotFoundException("Todo Not found");
             }
             return await _respository.DeleteTodoRepo(id);
         }
 
-        public async Task<bool> UpdateTodoService(int id, TodoUpdateDTO dto)
+        public async Task<bool> UpdateTodoService(int id, TodoUpdateDTO dto, int Uid)
         {
-            if (!await _validation.TodoIdValidation(id))
+            if (!await _validation.TodoIdValidation(id, Uid))
             {
                 return false;
             }
-            return await _respository.UpdateTodoRepo(id, dto);
+
+            return await _respository.UpdateTodoRepo(id, dto, Uid);
         }
 
-        public async Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto)
+        public async Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto, int UId)
         {
-            if (!await _validation.TodoIdValidation(id))
+            if (!await _validation.TodoIdValidation(id, UId))
             {
                 return false;
             }
             return await _respository.PatchTodoRepo(id, dto);
         }
 
-        public async Task<GetOneDTO> GetOneService(int id)
+        public async Task<GetOneDTO> GetOneService(int id, int UId)
         {
-            var value = await _respository.GetOneRepo(id);
+            var value = await _respository.GetOneRepo(id, UId);
 
             return value;
         }
 
-        public async Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat)
+        public async Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat, int UId)
         {
-            var todo = await _respository.SearchRepo(status, cat);
+            var todo = await _respository.SearchRepo(status, cat, UId);
 
             var todoresult = todo.Select(s => new TodoGetAll
             {

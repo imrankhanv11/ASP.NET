@@ -11,18 +11,18 @@ namespace Todo.ServiceLayer.Interface
 {
     public interface ITodoService
     {
-        Task<ResultSet<TodoAddResponseDTO>> TodoAddservice(TodoAddDTO dto);
+        Task<ResultSet<TodoAddResponseDTO>> TodoAddservice(TodoAddDTO dto, int id);
 
-        Task<IEnumerable<TodoGetAll>> GetAllService();
+        Task<IEnumerable<TodoGetAll>> GetAllService(int userID);
 
-        Task<bool> DeleteTodoService(int id);
+        Task<bool> DeleteTodoService(int id, int Uid);
 
-        Task<bool> UpdateTodoService(int id, TodoUpdateDTO dto);
+        Task<bool> UpdateTodoService(int id, TodoUpdateDTO dto, int Uid);
 
-        Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto);
+        Task<bool> PatchTodoService(int id, UpdateTodoStatusIdDTO dto, int UId);
 
-        Task<GetOneDTO> GetOneService(int id);
+        Task<GetOneDTO> GetOneService(int id, int UId);
 
-        Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat);
+        Task<IEnumerable<TodoGetAll>> SearchService(int? status, int? cat, int UId);
     }
 }

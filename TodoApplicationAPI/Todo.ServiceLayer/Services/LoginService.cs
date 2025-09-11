@@ -50,13 +50,14 @@ namespace Todo.ServiceLayer.Services
             var loginRoll = new LoginAuthenticationDTO
             {
                 Roll = value.Roll,
-                Email = value.Email
+                Email = value.Email,
+                Id = value.Id
             };
 
             return loginRoll;
         }
 
-        public async Task<LoginResponseDTO> GenerateJwtToken(string Email, string role)
+        public async Task<LoginResponseDTO> GenerateJwtToken(string Email, string role, int id)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTConfiguration:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -69,7 +70,8 @@ namespace Todo.ServiceLayer.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, Email),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.NameIdentifier, id.ToString())
             };
              
             var token = new JwtSecurityToken(
@@ -106,7 +108,7 @@ namespace Todo.ServiceLayer.Services
 
             await _rep.UpdateRevokeRefreshToken(value);
             
-            var newtoken = await GenerateJwtToken(value.UserEmail, value.Roll);
+            var newtoken = await GenerateJwtToken(value.UserEmail, value.Roll, value.Id);
 
             return newtoken;
         }
