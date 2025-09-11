@@ -164,45 +164,15 @@ namespace Todo.Controllers
             }
         }
 
-        [HttpPatch("UpdateByIDPath/{id:int}")]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateTodoPatch(int id, [FromBody] UpdateTodoStatusIdDTO dto)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized(new { message = "You must be logged in to perform this action." });
-            }
+        // ---- DIFFERENT MODEL BINDING ----
 
-            if ( id == 0) return BadRequest();
-
-            var UserID = User.Claims.FirstOrDefault(s=> s.Type == ClaimTypes.NameIdentifier);
-
-            var UId = int.Parse(UserID.Value);
-
-            try
-            {
-                var value = await _service.PatchTodoService(id, dto, UId);
-
-                if (!value) return NotFound();
-
-                return Ok();
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(500, $"Server Error - {ex.Message}");
-            }
-        }
-
-
-        [HttpGet("GetOneByID/{id?}")]
+        // FROMROUTE
+        [HttpGet("GetOneByID/{id}")]
         [ProducesResponseType(typeof(GetOneDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<GetOneDTO>> GetOne(int id = 3)
+        public async Task<ActionResult<GetOneDTO>> GetOne([FromRoute] int id)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -219,16 +189,51 @@ namespace Todo.Controllers
             {
                 var result = await _service.GetOneService(id, UId);
 
-                if(result == null) return NotFound();   
+                if (result == null) return NotFound();
 
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, $"Server Error {ex.Message}");
             }
         }
 
+        // FROMBODY
+        [HttpPatch("UpdateByIDPath/{id:int}")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateTodoPatch(int id, [FromBody] UpdateTodoStatusIdDTO dto)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "You must be logged in to perform this action." });
+            }
+
+            if (id == 0) return BadRequest();
+
+            var UserID = User.Claims.FirstOrDefault(s => s.Type == ClaimTypes.NameIdentifier);
+
+            var UId = int.Parse(UserID.Value);
+
+            try
+            {
+                var value = await _service.PatchTodoService(id, dto, UId);
+
+                if (!value) return NotFound();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Server Error - {ex.Message}");
+            }
+        }
+
+
+        // FROMQUERY
         [HttpGet]
         [Route("Search")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -251,5 +256,6 @@ namespace Todo.Controllers
 
             return Ok(value);
         }
+
     }
 }
