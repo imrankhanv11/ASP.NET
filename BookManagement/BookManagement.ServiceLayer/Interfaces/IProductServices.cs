@@ -17,5 +17,7 @@ namespace BookManagement.ServiceLayer.Interfaces
         Task<int> AddBookService(AddBookDTO book);
 
         Task<bool> DeleteBookService(int id);
+
+        Task<GetOneBookByNameDTO> GetOnebookService(string name);
     }
 }

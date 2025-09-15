@@ -113,39 +113,46 @@ namespace BookManagement.ServiceLayer.Services
         // REFRESH TOKEN
         public async Task<LoginResponseDTO> RefreshTokenService(string token)
         {
-            var key = Encoding.UTF8.GetBytes(_config["JWTConnection:Key"]);
-
-            var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+            try
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = _config["JWTConnection:Issuer"],
-                ValidateAudience = true,
-                ValidAudience = _config["JWTConnection:Audience"],
-                ValidateLifetime = true, // false
-                ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
+                var key = Encoding.UTF8.GetBytes(_config["JWTConnection:Key"]);
 
-            //var jwtToken = (JwtSecurityToken)validatedToken;
+                var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _config["JWTConnection:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _config["JWTConnection:Audience"],
+                    ValidateLifetime = true, // false
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
 
-            //if (jwtToken.ValidTo < DateTime.UtcNow)
-            //    throw new SecurityTokenExpiredException("Refresh token expired.");
+                //var jwtToken = (JwtSecurityToken)validatedToken;
 
-            var userID = principal.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var role = principal.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+                //if (jwtToken.ValidTo < DateTime.UtcNow)
+                //    throw new SecurityTokenExpiredException("Refresh token expired.");
 
-            var id = int.Parse(userID);
+                var userID = principal.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+                var role = principal.Claims.First(x => x.Type == ClaimTypes.Role).Value;
 
-            var Accesstoken = await GenerateJWTToken(role, id, true);
+                var id = int.Parse(userID);
 
-            var Refreshtoken = await GenerateJWTToken(role, id, false);
+                var Accesstoken = await GenerateJWTToken(role, id, true);
 
-            return new LoginResponseDTO
+                var Refreshtoken = await GenerateJWTToken(role, id, false);
+
+                return new LoginResponseDTO
+                {
+                    AccessToken = Accesstoken,
+                    RefreshToken = Refreshtoken
+                };
+            }
+            catch
             {
-                AccessToken = Accesstoken,
-                RefreshToken = Refreshtoken
-            };
+                throw new UnauthorizedAccessException("Refresh token expired try to login");
+            }
         }
     }
 }

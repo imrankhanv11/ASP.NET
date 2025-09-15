@@ -27,6 +27,9 @@ namespace BookManagement.ServiceLayer.Helper
             CreateMap<AddBookDTO, Book>();
 
             CreateMap<AddCatDto, Category>();
+
+            CreateMap<Book, GetOneBookByNameDTO>()
+                .ForMember(d => d.CategoryName, option => option.MapFrom(src => src.Category.CategoryName));
         }
     }
 }

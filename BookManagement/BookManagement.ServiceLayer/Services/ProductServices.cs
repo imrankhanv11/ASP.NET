@@ -5,6 +5,7 @@ using BookManagement.ServiceLayer.DTO.Books.Request;
 using BookManagement.ServiceLayer.DTO.Books.Response;
 using BookManagement.ServiceLayer.Helper;
 using BookManagement.ServiceLayer.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +18,21 @@ namespace BookManagement.ServiceLayer.Services
     {
         private readonly IGenericRepository<Book> _Bookrep;
         private readonly IMapper _mapper;
-
-        public ProductServices(IGenericRepository<Book> Bookrepo, IMapper mapper)
+        private readonly ILogger<ProductServices> _logger;
+        private readonly IProductRepo _repo;
+        public ProductServices(IGenericRepository<Book> Bookrepo, IMapper mapper, ILogger<ProductServices> logger, IProductRepo repo)
         {
             _Bookrep = Bookrepo;
             _mapper = mapper;
+            _logger = logger;
+            _repo = repo;
         }
 
         public async Task<IEnumerable<GetAllBooksDTO>> GetAllBooksService()
         {
-            var value = await _Bookrep.GetAllAsync();
+            var value = await _repo.GetAllAsync();
+
+            _logger.LogInformation("Fetch form DB");
 
             var output = _mapper.Map<IEnumerable<GetAllBooksDTO>>(value);
 
@@ -63,6 +69,18 @@ namespace BookManagement.ServiceLayer.Services
             await _Bookrep.DeleteAsync(id);
 
             return true;
+        }
+
+        public async Task<GetOneBookByNameDTO> GetOnebookService(string name)
+        {
+            _logger.LogInformation("Enter the service");
+            var value = await _repo.GetByBookName(name);
+
+            var output = _mapper.Map<GetOneBookByNameDTO>(value);
+
+
+            return output;
+
         }
 
     }
