@@ -7,6 +7,7 @@ using BookManagement.DataAccessLayer.Data;
 using BookManagement.DataAccessLayer.Interfaces;
 using BookManagement.DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookManagement.DataAccessLayer.Repositories
 {

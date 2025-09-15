@@ -1,6 +1,7 @@
 ﻿using BookManagement.DataAccessLayer.Interfaces;
 using BookManagement.DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
+using BookManagement.DataAccessLayer.Models;
 
 namespace BookManagement.DataAccessLayer.Repositories
 {
@@ -52,5 +53,6 @@ namespace BookManagement.DataAccessLayer.Repositories
 
             return entity;
         }
+
     }
 }
