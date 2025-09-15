@@ -51,7 +51,7 @@ namespace BookManagement.API.Controllers
 
         [HttpPost]
         [Route("AddNewCategory")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -69,7 +69,7 @@ namespace BookManagement.API.Controllers
 
         [HttpDelete]
         [Route("DeleteCategory/{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

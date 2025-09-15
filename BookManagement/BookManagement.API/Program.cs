@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.WebSockets;
 
 namespace BookManagement.API
 {
@@ -20,15 +21,22 @@ namespace BookManagement.API
             // Add services to the container.
             builder.Services.AddControllers();
 
+            // configure logging
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
             // Depentency Injections
             builder.Services.AddScoped<ILoginService, LoginService>();
             builder.Services.AddScoped<ILoginRepo, LoginRepo>();
 
             builder.Services.AddScoped<IProductServices, ProductServices>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ISPAdminService, SPAdminService>();
 
+            builder.Services.AddScoped<IProductRepo, ProductRepo>();
+
+            // Generic Repository
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
 
             // Mapper Injecton
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -78,27 +86,37 @@ namespace BookManagement.API
             builder.Services.AddDbContext<BookContext>(option =>
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDb")));
 
-            // JWT
+            // giving Policy
+            builder.Services.AddAuthorization(options => {
+                options.AddPolicy("SPAdminOnly", policy =>
+                    policy.RequireRole("SPAdmin")
+                );
 
+                options.AddPolicy("SPAdminAndAdmin", policy =>
+                    policy.RequireRole("SPAdmin", "Admin")
+                );
+            });
+
+            // JWT
             builder.Services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["JWTConnection:Issuer"],
-                        ValidAudience = builder.Configuration["JWTConnection:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTConnection:Key"]))
-                    };
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["JWTConnection:Issuer"],
+                    ValidAudience = builder.Configuration["JWTConnection:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTConnection:Key"]))
+                };
+            });
 
 
             var app = builder.Build();
@@ -122,6 +140,8 @@ namespace BookManagement.API
             }
 
             app.UseHttpsRedirection();
+            
+            // Authentication for JWT
             app.UseAuthentication();
             app.UseAuthorization();
 

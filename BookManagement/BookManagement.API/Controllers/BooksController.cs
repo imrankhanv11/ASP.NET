@@ -13,9 +13,13 @@ namespace BookManagement.API.Controllers
     {
         private readonly IProductServices _services;
 
-        public BooksController(IProductServices services)
+        // Logging
+        private readonly ILogger<BooksController> _logger;
+
+        public BooksController(IProductServices services, ILogger<BooksController> logger)
         {
             _services = services;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -23,10 +27,17 @@ namespace BookManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<GetAllBooksDTO>>> GetAllBooks()
         {
+            _logger.LogInformation("Enter the Method");
             var result = await _services.GetAllBooksService();
+            _logger.LogInformation("Get the Book Details");
 
             if (result == null || !result.Any())
+            {
+                _logger.LogWarning("No Books Found");
                 return Ok(new List<object>());
+            }
+
+            _logger.LogInformation("Books Found send results");
 
             return Ok(result);
         }
@@ -49,7 +60,7 @@ namespace BookManagement.API.Controllers
 
         [HttpPost]
         [Route("Addbook")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -65,14 +76,14 @@ namespace BookManagement.API.Controllers
 
             return CreatedAtAction(
                 nameof(GetOneBookByID),
-                new { id = id },
+                new { idnumber = id },
                 dto
             );
         }
 
         [HttpDelete]
         [Route("DeleteBook/{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -87,6 +98,26 @@ namespace BookManagement.API.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("GetBookByName/{name}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<GetOneBookByNameDTO>> GetByBookName(string name)
+        {
+            _logger.LogInformation("Enter the controler");
+            var output = await _services.GetOnebookService(name);
+
+            _logger.LogInformation($"{name}, this one");
+
+            if(output == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(output);
         }
     }
 }
