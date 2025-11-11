@@ -21,6 +21,15 @@ namespace BookManagement.API
             // Add services to the container.
             builder.Services.AddControllers();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp",
+                    policy => policy
+                    .WithOrigins("http://127.0.0.1:5500") // your AngularJS frontend
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
             // configure logging
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
@@ -34,6 +43,11 @@ namespace BookManagement.API
             builder.Services.AddScoped<ISPAdminService, SPAdminService>();
 
             builder.Services.AddScoped<IProductRepo, ProductRepo>();
+
+            builder.Services.AddScoped<ICatRepo, CatRepo>();
+
+            //// Testing config
+            builder.Services.AddScoped<ITestingService, TestingService>();
 
             // Generic Repository
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -114,7 +128,8 @@ namespace BookManagement.API
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["JWTConnection:Issuer"],
                     ValidAudience = builder.Configuration["JWTConnection:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTConnection:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTConnection:Key"])),
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
@@ -140,7 +155,9 @@ namespace BookManagement.API
             }
 
             app.UseHttpsRedirection();
-            
+
+            app.UseCors("AllowReactApp");
+
             // Authentication for JWT
             app.UseAuthentication();
             app.UseAuthorization();
