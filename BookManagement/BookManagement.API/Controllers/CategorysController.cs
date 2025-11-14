@@ -85,6 +85,18 @@ namespace BookManagement.API.Controllers
             return Ok(value);
         }
 
+        [HttpGet]
+        [Route("GetCatWithProducts/{id:int}")]
+        public async Task<ActionResult<IEnumerable<CatWithProductsDTO>>> GetCatWithProducts(int id)
+        {
+            var value = await _sevice.catWithProductService(id);
 
+            if(value == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(value);
+        }
     }
 }

@@ -61,9 +61,9 @@ namespace BookManagement.API.Controllers
         [Route("RefreshToken")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> RefreshToken([FromBody] string token)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDTO token)
         {
-            var tokenNew = await _service.RefreshTokenService(token);
+            var tokenNew = await _service.RefreshTokenService(token.RefreshToken);
 
             if (tokenNew != null)
             {

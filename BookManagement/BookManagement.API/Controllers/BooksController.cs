@@ -7,37 +7,34 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookManagement.API.Controllers
 {
-    [Route("api/[controller]")]
+
     [ApiController]
+    [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
         private readonly IProductServices _services;
 
         // Logging
-        private readonly ILogger<BooksController> _logger;
+        //private readonly ILogger<BooksController> _logger;
 
-        public BooksController(IProductServices services, ILogger<BooksController> logger)
+        public BooksController(IProductServices services)
         {
             _services = services;
-            _logger = logger;
+            //_logger = logger;
         }
 
         [HttpGet]
         [Route("GellAllBooks")]
+        //[Authorize(Policy = "SPAdminAndAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<GetAllBooksDTO>>> GetAllBooks()
         {
-            _logger.LogInformation("Enter the Method");
             var result = await _services.GetAllBooksService();
-            _logger.LogInformation("Get the Book Details");
 
             if (result == null || !result.Any())
             {
-                _logger.LogWarning("No Books Found");
-                return Ok(new List<object>());
+                return NoContent();
             }
-
-            _logger.LogInformation("Books Found send results");
 
             return Ok(result);
         }
@@ -52,7 +49,7 @@ namespace BookManagement.API.Controllers
 
             if(value == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Book Not found"});
             }
 
             return Ok(value);
@@ -71,14 +68,10 @@ namespace BookManagement.API.Controllers
 
             var id = await _services.AddBookService(dto);
 
-            if (id <= 0)
-                return StatusCode(StatusCodes.Status500InternalServerError, "Book could not be created");
+            //if (id <= 0)
+            //    return StatusCode(StatusCodes.Status500InternalServerError, "Book could not be created");
 
-            return CreatedAtAction(
-                nameof(GetOneBookByID),
-                new { idnumber = id },
-                dto
-            );
+            return Ok(id);
         }
 
         [HttpDelete]
@@ -97,8 +90,23 @@ namespace BookManagement.API.Controllers
                 return BadRequest();
             }
 
-            return Ok();
+            return Ok(new {id = id,  message = "Deleted Sucessfully"});
         }
+
+        [HttpPut]
+        [Route("UpdateBook")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateBook([FromBody] UpdateBookRequestDTO updateBook)
+        {
+            var book = await _services.UpdateBookService(updateBook);
+
+            return Ok(book);
+        }
+
 
         [HttpGet]
         [Route("GetBookByName/{name}")]
@@ -107,10 +115,10 @@ namespace BookManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<GetOneBookByNameDTO>> GetByBookName(string name)
         {
-            _logger.LogInformation("Enter the controler");
+            //_logger.LogInformation("Enter the controler");
             var output = await _services.GetOnebookService(name);
 
-            _logger.LogInformation($"{name}, this one");
+            //_logger.LogInformation($"{name}, this one");
 
             if(output == null)
             {
