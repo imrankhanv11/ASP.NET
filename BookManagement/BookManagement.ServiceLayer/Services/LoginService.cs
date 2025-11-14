@@ -46,7 +46,7 @@ namespace BookManagement.ServiceLayer.Services
             {
                 Username = userName,
                 PasswordHash = hashPassword,
-                RoleId = 2
+                RoleId = 3
             };
 
             return await _repo.RegisterUserRepo(newUser);
@@ -76,7 +76,13 @@ namespace BookManagement.ServiceLayer.Services
             return new LoginResponseDTO
             {
                 AccessToken = Accesstoken,
-                RefreshToken = Refreshtoken
+                RefreshToken = Refreshtoken,
+                User = new LoginResponseUserDTO
+                {
+                    Username = checkUserexit.Username,
+                    UserId = checkUserexit.UserId,
+                    Role = checkUserexit.Role.RoleName
+                }
             };
         }
 

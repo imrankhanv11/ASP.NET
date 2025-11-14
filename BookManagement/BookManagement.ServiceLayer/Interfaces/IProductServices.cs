@@ -1,4 +1,5 @@
-﻿using BookManagement.ServiceLayer.DTO.Books.Request;
+﻿using BookManagement.DataAccessLayer.Models;
+using BookManagement.ServiceLayer.DTO.Books.Request;
 using BookManagement.ServiceLayer.DTO.Books.Response;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ namespace BookManagement.ServiceLayer.Interfaces
 
         Task<GetOneBookDTO> GetOneBookService(int id);
 
-        Task<int> AddBookService(AddBookDTO book);
+        Task<AddBookResponseDTO> AddBookService(AddBookDTO book);
+
+        Task<AddBookResponseDTO> UpdateBookService(UpdateBookRequestDTO updateBook);
 
         Task<bool> DeleteBookService(int id);
 

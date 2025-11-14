@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookManagement.ServiceLayer.DTO.Books.Response
+namespace BookManagement.ServiceLayer.DTO.Books.Request
 {
-    public class GetAllBooksDTO
+    public class UpdateBookRequestDTO
     {
-        public int BookId { get; set; }
+        public int Id {  get; set; }
         public string Title { get; set; } = null!;
 
         public string Author { get; set; } = null!;

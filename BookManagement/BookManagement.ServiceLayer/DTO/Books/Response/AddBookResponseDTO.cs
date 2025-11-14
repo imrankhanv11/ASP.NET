@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace BookManagement.ServiceLayer.DTO.Books.Response
 {
-    public class GetAllBooksDTO
+    public class AddBookResponseDTO
     {
         public int BookId { get; set; }
+
         public string Title { get; set; } = null!;
 
         public string Author { get; set; } = null!;

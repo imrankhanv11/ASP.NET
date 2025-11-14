@@ -18,13 +18,13 @@ namespace BookManagement.ServiceLayer.Services
     {
         private readonly IGenericRepository<Book> _Bookrep;
         private readonly IMapper _mapper;
-        private readonly ILogger<ProductServices> _logger;
+        //private readonly ILogger<ProductServices> _logger;
         private readonly IProductRepo _repo;
-        public ProductServices(IGenericRepository<Book> Bookrepo, IMapper mapper, ILogger<ProductServices> logger, IProductRepo repo)
+        public ProductServices(IGenericRepository<Book> Bookrepo, IMapper mapper, IProductRepo repo)
         {
             _Bookrep = Bookrepo;
             _mapper = mapper;
-            _logger = logger;
+            //_logger = logger;
             _repo = repo;
         }
 
@@ -32,7 +32,7 @@ namespace BookManagement.ServiceLayer.Services
         {
             var value = await _repo.GetAllAsync();
 
-            _logger.LogInformation("Fetch form DB");
+            //_logger.LogInformation("Fetch form DB");
 
             var output = _mapper.Map<IEnumerable<GetAllBooksDTO>>(value);
 
@@ -48,33 +48,45 @@ namespace BookManagement.ServiceLayer.Services
             return output;
         }
 
-        public async Task<int> AddBookService(AddBookDTO book)
+        public async Task<AddBookResponseDTO> AddBookService(AddBookDTO book)
         {
             var value = _mapper.Map<Book>(book);
 
             var output = await _Bookrep.AddAsync(value);
 
-            return output.BookId;
+            return new AddBookResponseDTO
+            {
+                BookId = output.BookId,
+                Price = output.Price,
+                CategoryId = output.CategoryId,
+                Author = output.Author,
+                Stock = output.Stock,
+                Title = output.Title,
+            };
         }
 
         public async Task<bool> DeleteBookService(int id)
         {
-            var value = await _Bookrep.GetByIdAsync(id);
+            var book = await _Bookrep.GetByIdAsync(id);
 
-            if(value != null)
+            if (book == null)
             {
-                return false;
+                throw new KeyNotFoundException($"Book with id {id} does not exist.");
             }
 
             await _Bookrep.DeleteAsync(id);
-
             return true;
         }
 
         public async Task<GetOneBookByNameDTO> GetOnebookService(string name)
         {
-            _logger.LogInformation("Enter the service");
+            //_logger.LogInformation("Enter the service");
             var value = await _repo.GetByBookName(name);
+
+            if(value == null)
+            {
+                throw new KeyNotFoundException("Book not found");
+            }
 
             var output = _mapper.Map<GetOneBookByNameDTO>(value);
 
@@ -83,5 +95,26 @@ namespace BookManagement.ServiceLayer.Services
 
         }
 
+        public async Task<AddBookResponseDTO> UpdateBookService(UpdateBookRequestDTO updateBook)
+        {
+            var book = await _Bookrep.GetByIdAsync(updateBook.Id);
+
+            book.Author = updateBook.Author;
+            book.Stock = updateBook.Stock;
+            book.CategoryId = updateBook.CategoryId;
+            book.Title = updateBook.Title;
+
+            var updatedBook = await _Bookrep.UpdateAsync(book);
+
+            return new AddBookResponseDTO
+            {
+                BookId = updateBook.Id,
+                Author = updateBook.Author,
+                Stock = updateBook.Stock,
+                Title = updateBook.Title,   
+                Price = updateBook.Price,
+                CategoryId = updateBook.CategoryId,
+            };
+        }
     }
 }

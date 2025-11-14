@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace BookManagement.ServiceLayer.DTO.Books.Response
 {
-    public class GetAllBooksDTO
+    public class CatWithProductsProductsDTO
     {
-        public int BookId { get; set; }
         public string Title { get; set; } = null!;
 
         public string Author { get; set; } = null!;
@@ -16,7 +15,5 @@ namespace BookManagement.ServiceLayer.DTO.Books.Response
         public decimal Price { get; set; }
 
         public int Stock { get; set; }
-
-        public int CategoryId { get; set; }
     }
 }

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace BookManagement.ServiceLayer.DTO.Login.Response
 {
-    public class LoginResponseDTO
+    public class LoginResponseUserDTO
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public int UserId { get; set; }
 
-        public LoginResponseUserDTO User {  get; set; }
+        public string Username { get; set; } = null!;
+
+        public string Role { get; set; } = null!;
     }
 }

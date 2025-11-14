@@ -18,11 +18,13 @@ namespace BookManagement.ServiceLayer.Services
     {
         private readonly IGenericRepository<Category> _catRepo;
         private readonly IMapper _mapper;
+        private readonly ICatRepo _repo;
 
-        public CategoryService(IGenericRepository<Category> catRepo, IMapper mapper)
+        public CategoryService(IGenericRepository<Category> catRepo, IMapper mapper, ICatRepo repo)
         {
             _catRepo = catRepo;
             _mapper = mapper;
+            _repo = repo;
         }
 
         public async Task<IEnumerable<GetAllCategoryDTO>> GetAllCatService()
@@ -37,6 +39,11 @@ namespace BookManagement.ServiceLayer.Services
         public async Task<GetOneCatDTO> GetOneCatService(int id)
         {
             var value = await _catRepo.GetByIdAsync(id);
+
+            if(value == null)
+            {
+                throw new KeyNotFoundException("Category not found");
+            }
 
             var output = _mapper.Map<GetOneCatDTO>(value);
 
@@ -63,5 +70,13 @@ namespace BookManagement.ServiceLayer.Services
             return true;
         }
 
+        public async Task<IEnumerable<CatWithProductsDTO>> catWithProductService(int id)
+        {
+            var value = await _repo.catRepo(id);
+
+            var output = _mapper.Map<IEnumerable<CatWithProductsDTO>>(value);
+
+            return output;
+        }
     }
 }
