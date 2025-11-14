@@ -25,7 +25,7 @@ namespace BookManagement.API
             {
                 options.AddPolicy("AllowReactApp",
                     policy => policy
-                    .WithOrigins("http://127.0.0.1:5500") // your AngularJS frontend
+                    .WithOrigins("http://127.0.0.1:5501") // your AngularJS frontend
                     .AllowAnyHeader()
                     .AllowAnyMethod());
             });
