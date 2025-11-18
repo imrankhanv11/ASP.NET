@@ -78,5 +78,19 @@ namespace BookManagement.ServiceLayer.Services
 
             return output;
         }
+
+        public async Task CatUpdateService(UpdateCatRequestDTO dto)
+        {
+            var cat = await _catRepo.GetByIdAsync(dto.id);
+
+            if(cat == null)
+            {
+                throw new KeyNotFoundException("CAtegory not found");
+            }
+
+            cat.CategoryName = dto.CategoryName;
+
+            await _catRepo.UpdateAsync(cat);
+        }
     }
 }

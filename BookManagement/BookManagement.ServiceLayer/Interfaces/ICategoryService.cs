@@ -19,5 +19,7 @@ namespace BookManagement.ServiceLayer.Interfaces
         Task<bool> DeleteCatService(int id);
 
         Task<IEnumerable<CatWithProductsDTO>> catWithProductService(int id);
+
+        Task CatUpdateService(UpdateCatRequestDTO dto);
     }
 }
