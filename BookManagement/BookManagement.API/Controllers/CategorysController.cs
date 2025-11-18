@@ -85,6 +85,20 @@ namespace BookManagement.API.Controllers
             return Ok(value);
         }
 
+        [HttpPut]
+        [Route("UpdateCategory")]
+        [Authorize(Policy = "SPAdminAndAdmin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateCat([FromBody] UpdateCatRequestDTO cat)
+        {
+            await _sevice.CatUpdateService(cat);
+
+            return Ok();
+        }
+
+
         [HttpGet]
         [Route("GetCatWithProducts/{id:int}")]
         public async Task<ActionResult<IEnumerable<CatWithProductsDTO>>> GetCatWithProducts(int id)
